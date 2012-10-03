@@ -48,6 +48,9 @@ void setup()
 	
 	//Setup SD card on ethernet shield  on pin 4
 	SD.begin(4);
+    
+    //Setup SD card on sparkfun shield  on pin 8
+    //SD.begin(8);
 }
 
 void loop() // run over and over
@@ -63,7 +66,7 @@ void loop() // run over and over
 	// Send request if the timer expires
 	if(currentMillis - previousMillis > interval) {
 		// Save the uptime of the last request
-		previousMillis = currentMillis;   
+		previousMillis = currentMillis;
 		requestOperatingData();
 	}
 	
@@ -134,10 +137,10 @@ void parseOpData(){
 	x = strtol(ampDraw, NULL, 16);
 	float amps = x;
 	
-	// Create a data string for log file from values 
+	// Create a data string for log file from values
 	String dataString = "";
 	char val[8];    // string buffer
-
+    
 	// dtostrf(FLOAT,WIDTH,PRECSISION,BUFFER);
 	dataString += dtostrf(press1,6,2,val);
 	dataString += ",";
@@ -148,27 +151,29 @@ void parseOpData(){
 	dataString += dtostrf(temp2,6,2,val);
 	dataString += ",";
 	dataString += dtostrf(amps,3,0,val);
-
-	// Increment the log suffix 
+    
+	// Increment the log suffix
 	if(lineCount > MAX_SAMPLE_COUNT){
 		lineCount = 0;
 		logSuffix++;
 	}
-
+    
 	// Construct log filename i.e. ES_LOG_0.CSV, ES_LOG_1.CSV and so on
 	String fileName = "ES_LOG_";
 	fileName += logSuffix;
 	fileName += ".CSV";
-
+    char fileNameBuf[100]; // Or something long enough to hold the longest file name you will ever use.
+    fileName.toCharArray(fileNameBuf, sizeof(fileName));
+    
 	// Open the file.
-	File dataFile = SD.open(fileName, FILE_WRITE);
-
+	File dataFile = SD.open(fileNameBuf, FILE_WRITE);
+    
 	// If the file is available, write to it:
 	if (dataFile) {
 		dataFile.println(dataString);
 		dataFile.close();
 	}
-
+    
 	// Increment line count
 	lineCount++;
 }
